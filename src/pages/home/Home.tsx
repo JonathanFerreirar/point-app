@@ -65,7 +65,7 @@ const Home = () => {
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
       <div>
-        <h1 className="mb-6 text-center text-[2rem] font-extrabold text-white">
+        <h1 className="mb-6 text-center text-[3rem] font-extrabold text-white">
           Relógio de Ponto
         </h1>
         <Clock
@@ -79,10 +79,12 @@ const Home = () => {
         >
           <div>
             <Input
-              className="mb-3 ml-2"
               placeholder="Digite seu Identificador..."
               autoComplete="off"
+              className="mb-3 ml-2 text-center text-xl"
               {...register('idEmployer')}
+              /* eslint-disable-next-line jsx-a11y/no-autofocus */
+              autoFocus
             />
             {!!errors.idEmployer && (
               <p className="text-center font-semibold text-red-600">

@@ -21,7 +21,7 @@ const UserContext = createContext({} as PointContext)
 export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
   const [userPoint, setUserPoint] = useState<UserPoint>({
     id: 0,
-    name: 'Ninguém logado',
+    name: '',
     working_time: '07:30',
     workload: '0',
   })

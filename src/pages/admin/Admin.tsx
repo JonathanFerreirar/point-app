@@ -41,7 +41,11 @@ function Admin() {
 
   const onSubmit = (data: adminLoginFields) => {
     const result = userAdmin.find(user => {
-      return user.name === data.userName && user.password === data.password
+      return (
+        user.name === data.userName &&
+        user.password === data.password &&
+        user.password.includes('contec@')
+      )
     })
     if (result) {
       navigate('/employees')
@@ -93,13 +97,13 @@ function Admin() {
                 {handleShowPassword ? (
                   <Eye
                     size={18}
-                    className="absolute bottom-[19px] right-2 text-gray-400"
+                    className="absolute bottom-[30px] right-4 text-gray-400"
                     onClick={() => setHandleShowPassword(false)}
                   />
                 ) : (
                   <EyeOff
                     size={18}
-                    className="absolute bottom-[19px] right-2 my-auto text-gray-400"
+                    className="absolute bottom-[30px] right-4 my-auto text-gray-400"
                     onClick={() => setHandleShowPassword(true)}
                   />
                 )}

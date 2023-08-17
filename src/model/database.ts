@@ -7,13 +7,10 @@ const dbFilePath = path.join(__dirname, 'app-point.db')
 
 async function getAdminFromSQLite() {
   return new Promise((resolve, reject) => {
-
     const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, err => {
       if (err) {
         console.error('Here', err.message)
         reject(err)
-      } else {
-        console.log('')
       }
     })
 
@@ -56,13 +53,10 @@ async function getAdminFromSQLite() {
 
 async function getUserFromSQLite() {
   return new Promise((resolve, reject) => {
-
     const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, err => {
       if (err) {
         console.error('Here', err.message)
         reject(err)
-      } else {
-        console.log('')
       }
     })
 
@@ -105,13 +99,10 @@ async function getUserFromSQLite() {
 
 async function getRegistersFromSQLite() {
   return new Promise((resolve, reject) => {
-
     const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, err => {
       if (err) {
         console.error('Here', err.message)
         reject(err)
-      } else {
-        console.log('')
       }
     })
 
@@ -152,27 +143,26 @@ async function getRegistersFromSQLite() {
   })
 }
 // eslint-disable-next-line
-              // @ts-ignore
+// @ts-ignore
 async function postDataToSQlite(data, teste, saida) {
   const db = new sqlite3.Database(dbFilePath)
 
   db.run(
     `INSERT INTO data(data,teste, saida) VALUES(?, ?, ?)`,
     [data, teste, saida],
-// eslint-disable-next-line
-              // @ts-ignore
+    // eslint-disable-next-line
+    // @ts-ignore
     function (err) {
       if (err) {
         return console.log(err.message)
       }
-// eslint-disable-next-line
-              // @ts-ignore
-      console.log(`A row has been inserted with rowid ${this.lastID}`)
+      // eslint-disable-next-line
+      // @ts-ignore
     },
   )
 }
 // eslint-disable-next-line
-              // @ts-ignore
+// @ts-ignore
 async function createNewUser({ name, workload, workingTime }) {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbFilePath)
@@ -181,14 +171,14 @@ async function createNewUser({ name, workload, workingTime }) {
       `INSERT INTO users(name, workload ,working_time) VALUES(?, ?, ?)`,
       [name, workload, workingTime],
       // eslint-disable-next-line
-              // @ts-ignore
+      // @ts-ignore
       function (err) {
         if (err) {
           reject(err)
         } else {
           resolve({
             // eslint-disable-next-line
-              // @ts-ignore
+            // @ts-ignore
             id: this.lastID,
             name,
             workload,
@@ -209,8 +199,6 @@ async function createNewRegister({
   month,
   year,
 }) {
-  console.log(userId, day)
-
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbFilePath)
 
@@ -277,27 +265,25 @@ async function createNewRegister({
   })
 }
 
-async function updatingTimeUser({selectOption, timeCurrent,userId, day, month, year }) {
+async function updatingTimeUser({
+  selectOption,
+  timeCurrent,
+  userId,
+  day,
+  month,
+  year,
+}) {
   const db = new sqlite3.Database(dbFilePath)
 
-   db.run(
-                `UPDATE registers SET ${selectOption} = ? WHERE user_id = ? AND day = ? AND month = ? AND year = ?`,
-                [timeCurrent,userId, day, month, year],
-                function (err) {
-                  if (err) {
-                    console.log(err)
-                  } else {
-                    console.log({
-                      id: this.lastID,
-                      userId,
-                      timeCurrent,
-                      day,
-                      month,
-                      year,
-                    })
-                  }
-                },
-              )
+  db.run(
+    `UPDATE registers SET ${selectOption} = ? WHERE user_id = ? AND day = ? AND month = ? AND year = ?`,
+    [timeCurrent, userId, day, month, year],
+    function (err) {
+      if (err) {
+        console.log(err)
+      }
+    },
+  )
 }
 
 async function deleteItemFromId(id) {
@@ -306,8 +292,6 @@ async function deleteItemFromId(id) {
   db.run('DELETE FROM users WHERE id=(?)', id, function (err) {
     if (err) {
       console.log(err)
-    } else {
-      console.log('Successful')
     }
     db.close()
   })
