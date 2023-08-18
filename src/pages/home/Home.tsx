@@ -64,14 +64,11 @@ const Home = () => {
 
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
-      <div>
-        <h1 className="mb-6 text-center text-[3rem] font-extrabold text-white">
-          Relógio de Ponto
-        </h1>
+      <div className="flex flex-col gap-5">
         <Clock
           locales="pt-BR"
           options={clockOptions}
-          className="mb-7 block text-center text-5xl font-bold text-white"
+          className="mb-7 block text-center text-9xl font-bold text-white"
         />
         <form
           className="flex flex-col items-center gap-y-6"

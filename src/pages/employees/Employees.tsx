@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle, Trash2, Eye, ArrowDownCircle, Pencil } from 'lucide-react'
 import * as Table from '@/components/Table/table'
+import * as Select from '@/components/Select/select'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/Input/input'
 import { Button } from '@/components/Button/button'
@@ -13,8 +14,25 @@ import { Link } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
 import { Employee, EmployeeResgister } from '@/components/Modal/modal'
 import { toast } from 'react-hot-toast'
+import { useGetUser } from '@/context/pointContext'
+import { optionsMounth } from '@/data/options'
 
 const tableEmployeeSchema = z.object({
+  mounth: z.enum([
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
+  ]),
+  year: z.string().nonempty('Por favor, preencha esse campo com algum valor.'),
   newEmployee: z
     .string()
     .nonempty('Por favor, preencha esse campo com algum valor.'),
@@ -36,6 +54,7 @@ interface EmployeesProps {
 export default function Employees() {
   const [employees, setEmployees] = useState<EmployeesProps[]>([])
   const [registerUser, setRegisterUser] = useState<EmployeeResgister[]>([])
+  const { admin } = useGetUser()
   const [userInModal, setUserInModal] = useState<Employee>({
     name: 'Jonathan Rodrigo',
     registered: [
@@ -159,41 +178,66 @@ export default function Employees() {
 
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
-      <div>
-        <h1 className="mb-6 text-center text-[2rem] font-extrabold text-white">
-          Funcionários
-        </h1>
-
+      <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex items-center justify-center gap-10">
+          <Input
+            {...register('year')}
+            className={cn(
+              'text-center',
+              errors.year &&
+                'border-red-600 hover:border-red-600 focus-visible:border-red-600',
+            )}
+            {...register('year')}
+            placeholder="Selecione o ano ex: 2023"
+          />
+          <Select.Root
+            {...register('mounth')}
+            className={cn(
+              errors.mounth &&
+                'bg-red-600 hover:bg-red-600 focus-visible:bg-red-600',
+            )}
+          >
+            {optionsMounth.map(option => (
+              <Select.Option key={option.label} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select.Root>
+        </div>
         <div className="w-full rounded bg-white p-8">
           <form
             onSubmit={handleSubmit(handleAddEmployee)}
             className="flex flex-col gap-y-2 pb-4"
           >
             <div className="flex gap-x-3">
-              <Input
-                placeholder="Novo funcionário"
-                className={cn(
-                  'flex-1',
-                  errors.newEmployee &&
-                    'border-red-600 hover:border-red-600 focus-visible:border-red-600',
-                )}
-                {...register('newEmployee')}
-              />
-              <Input
-                placeholder="Horas à trabalhar"
-                className={cn(
-                  errors.workingTime &&
-                    'border-red-600 hover:border-red-600 focus-visible:border-red-600',
-                )}
-                {...register('workingTime')}
-              />
-              <button
-                title="Adicionar funcionário"
-                type="submit"
-                className="flex items-center justify-center rounded-md px-2 outline-black transition-colors duration-200 hover:bg-gray-200 focus-visible:bg-gray-200"
-              >
-                <PlusCircle />
-              </button>
+              {admin && (
+                <>
+                  <Input
+                    placeholder="Novo funcionário"
+                    className={cn(
+                      'flex-1',
+                      errors.newEmployee &&
+                        'border-red-600 hover:border-red-600 focus-visible:border-red-600',
+                    )}
+                    {...register('newEmployee')}
+                  />
+                  <Input
+                    placeholder="Horas à trabalhar"
+                    className={cn(
+                      errors.workingTime &&
+                        'border-red-600 hover:border-red-600 focus-visible:border-red-600',
+                    )}
+                    {...register('workingTime')}
+                  />
+                  <button
+                    title="Adicionar funcionário"
+                    type="submit"
+                    className="flex items-center justify-center rounded-md px-2 outline-black transition-colors duration-200 hover:bg-gray-200 focus-visible:bg-gray-200"
+                  >
+                    <PlusCircle />
+                  </button>
+                </>
+              )}
             </div>
             {errors.newEmployee && (
               <p className="text-red-700 underline">
@@ -232,16 +276,21 @@ export default function Employees() {
                       <Table.Cell className="p-4">
                         {employee.working_time}
                       </Table.Cell>
-                      <Table.Cell>
-                        <button
-                          onClick={() => handleDeleteUser(Number(employee.id))}
-                          title="Excluir funcionário"
-                          type="button"
-                          className="rounded-md px-2 py-2 outline-black transition-colors duration-200 hover:bg-white"
-                        >
-                          <Trash2 size={20} className="text-red-600" />
-                        </button>
-                      </Table.Cell>
+                      {admin && (
+                        <Table.Cell>
+                          <button
+                            onClick={() =>
+                              handleDeleteUser(Number(employee.id))
+                            }
+                            title="Excluir funcionário"
+                            type="button"
+                            className="rounded-md px-2 py-2 outline-black transition-colors duration-200 hover:bg-white"
+                          >
+                            <Trash2 size={20} className="text-red-600" />
+                          </button>
+                        </Table.Cell>
+                      )}
+
                       <Table.Cell>
                         <DialogDemo employee={userInModal}>
                           <button
@@ -288,13 +337,15 @@ export default function Employees() {
         </div>
       </div>
       <EditModal>
-        <Button
-          title="Visualizar"
-          type="button"
-          className="absolute left-2 top-4"
-        >
-          <Pencil size={20} className="text-blue-600" />
-        </Button>
+        {admin && (
+          <Button
+            title="Visualizar"
+            type="button"
+            className="absolute left-2 top-4"
+          >
+            <Pencil size={20} className="text-blue-600" />
+          </Button>
+        )}
       </EditModal>
       <Button className="absolute right-2 top-4" asChild>
         <Link to={'/'}>Sair</Link>

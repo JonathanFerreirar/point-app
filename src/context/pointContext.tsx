@@ -14,6 +14,8 @@ export interface UserPoint {
 interface PointContext {
   userPoint: UserPoint
   handleSetUserPoint(user: UserPoint): void
+  admin: boolean
+  handleSetAdmin: (value: boolean) => void
 }
 
 const UserContext = createContext({} as PointContext)
@@ -26,11 +28,19 @@ export const UserProvider: React.FC<ProviderProps> = ({ children }) => {
     workload: '0',
   })
 
+  const [admin, setAdmin] = useState(false)
+
   const handleSetUserPoint = (userInfos: UserPoint) => {
     setUserPoint(userInfos)
   }
+
+  const handleSetAdmin = (value: boolean) => {
+    setAdmin(value)
+  }
   return (
-    <UserContext.Provider value={{ userPoint, handleSetUserPoint }}>
+    <UserContext.Provider
+      value={{ userPoint, admin, handleSetUserPoint, handleSetAdmin }}
+    >
       {children}
     </UserContext.Provider>
   )

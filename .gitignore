@@ -14,6 +14,7 @@ dist-electron
 release
 *.local
 .env.local
+/src/model/app-point.db
 
 # Editor directories and files
 .idea

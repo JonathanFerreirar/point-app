@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
+import { useGetUser } from '@/context/pointContext'
 
 type adminLoginFields = z.infer<typeof adminSquema>
 
@@ -25,7 +26,7 @@ function Admin() {
   const [userAdmin, setUserAdmin] = useState<dataForm[]>([])
   const [handleShowPassword, setHandleShowPassword] = useState(false)
   const navigate = useNavigate()
-
+  const { handleSetAdmin } = useGetUser()
   const {
     register,
     handleSubmit,
@@ -47,8 +48,15 @@ function Admin() {
         user.password.includes('contec@')
       )
     })
+
     if (result) {
       navigate('/employees')
+      handleSetAdmin(true)
+      return
+    }
+    if (data.userName === 'geral' && data.password === 'geral') {
+      navigate('/employees')
+      handleSetAdmin(false)
       return
     }
     setError('root', { message: 'Senha ou usuario errado.' })
@@ -97,13 +105,13 @@ function Admin() {
                 {handleShowPassword ? (
                   <Eye
                     size={18}
-                    className="absolute bottom-[30px] right-4 text-gray-400"
+                    className="absolute bottom-[23px] right-4 cursor-pointer text-gray-400"
                     onClick={() => setHandleShowPassword(false)}
                   />
                 ) : (
                   <EyeOff
                     size={18}
-                    className="absolute bottom-[30px] right-4 my-auto text-gray-400"
+                    className="absolute bottom-[23px] right-4 my-auto cursor-pointer text-gray-400"
                     onClick={() => setHandleShowPassword(true)}
                   />
                 )}

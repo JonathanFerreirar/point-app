@@ -1,5 +1,5 @@
 import { Employee } from '@/components/Modal/modal'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, nativeTheme } from 'electron'
 import { dialog } from 'electron'
 import electronModeDev from 'electron-is-dev'
 import path from 'path'
@@ -30,6 +30,20 @@ const {
 
 let win: BrowserWindow | null
 
+const menu = Menu.buildFromTemplate([
+  {
+    label: 'Janela',
+    submenu: [
+      { label: 'Tela Inteira', role: 'togglefullscreen' },
+      { label: 'Reiniciar', role: 'reload' },
+      { label: 'Zoom -', role: 'zoomOut' },
+      { label: 'Zoom +', role: 'zoomIn' },
+      { label: 'Fechar', role: 'close' },
+    ],
+  },
+])
+Menu.setApplicationMenu(menu)
+
 function createWindow() {
   const distPath = path.join(__dirname, '../dist')
   const publicPath = app.isPackaged
@@ -38,16 +52,19 @@ function createWindow() {
 
   win = new BrowserWindow({
     icon: path.join(publicPath, 'electron-vite.ico'),
+    //fullscreen: true, // Definindo para abrir em fullscreen
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
-
+  nativeTheme.shouldUseDarkColors
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
+
+    win?.webContents.insertCSS('body { background-color: white; }')
   })
 
   if (electronModeDev) {
@@ -153,12 +170,11 @@ interface updatingUserTime {
 
 ipcMain.handle('updatingUser', async (event, updading: updatingUserTime) => {
   event.sender
-  console.log(updading)
   try {
     return await updatingTimeUser({ ...updading })
   } catch (error) {
     // eslint-disable-next-line
-      // @ts-ignore
+    // @ts-ignore
     throw new Error(error.message)
   }
 })
@@ -177,7 +193,6 @@ ipcMain.handle(
   'create-register',
   async (event, register: CreateRegisterData) => {
     event.sender
-    console.log(register)
     try {
       return await createNewRegister({ ...register })
     } catch (error) {

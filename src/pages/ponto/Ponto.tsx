@@ -127,7 +127,7 @@ const Ponto = () => {
         setSuccess('Ponto registrado com sucesso')
         setTimeout(() => {
           navigate('/')
-        }, 200)
+        }, 1500)
       } catch (error) {
         console.log(error)
         if (error instanceof Error) {

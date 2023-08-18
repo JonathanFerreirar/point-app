@@ -20,28 +20,21 @@ async function getAdminFromSQLite() {
       db.each(
         `SELECT *
         FROM Admins`,
-        // eslint-disable-next-line
-        // @ts-ignore
+
         (err, row) => {
           if (err) {
             console.error(err.message)
             reject(err)
           } else {
-            // eslint-disable-next-line
-            // @ts-ignore
             data.push(row)
           }
         },
         () => {
-          // eslint-disable-next-line
-          // @ts-ignore
           db.close(err => {
             if (err) {
               console.error(err.message)
               reject(err)
             } else {
-              // eslint-disable-next-line
-              // @ts-ignore
               resolve(data)
             }
           })
@@ -66,28 +59,21 @@ async function getUserFromSQLite() {
       db.each(
         `SELECT *
         FROM users`,
-        // eslint-disable-next-line
-        // @ts-ignore
+
         (err, row) => {
           if (err) {
             console.error(err.message)
             reject(err)
           } else {
-            // eslint-disable-next-line
-            // @ts-ignore
             data.push(row)
           }
         },
         () => {
-          // eslint-disable-next-line
-          // @ts-ignore
           db.close(err => {
             if (err) {
               console.error(err.message)
               reject(err)
             } else {
-              // eslint-disable-next-line
-              // @ts-ignore
               resolve(data)
             }
           })
@@ -112,28 +98,21 @@ async function getRegistersFromSQLite() {
       db.each(
         `SELECT *
         FROM registers`,
-        // eslint-disable-next-line
-        // @ts-ignore
+
         (err, row) => {
           if (err) {
             console.error(err.message)
             reject(err)
           } else {
-            // eslint-disable-next-line
-            // @ts-ignore
             data.push(row)
           }
         },
         () => {
-          // eslint-disable-next-line
-          // @ts-ignore
           db.close(err => {
             if (err) {
               console.error(err.message)
               reject(err)
             } else {
-              // eslint-disable-next-line
-              // @ts-ignore
               resolve(data)
             }
           })
@@ -142,27 +121,22 @@ async function getRegistersFromSQLite() {
     })
   })
 }
-// eslint-disable-next-line
-// @ts-ignore
+
 async function postDataToSQlite(data, teste, saida) {
   const db = new sqlite3.Database(dbFilePath)
 
   db.run(
     `INSERT INTO data(data,teste, saida) VALUES(?, ?, ?)`,
     [data, teste, saida],
-    // eslint-disable-next-line
-    // @ts-ignore
+
     function (err) {
       if (err) {
         return console.log(err.message)
       }
-      // eslint-disable-next-line
-      // @ts-ignore
     },
   )
 }
-// eslint-disable-next-line
-// @ts-ignore
+
 async function createNewUser({ name, workload, workingTime }) {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbFilePath)
@@ -170,15 +144,12 @@ async function createNewUser({ name, workload, workingTime }) {
     db.run(
       `INSERT INTO users(name, workload ,working_time) VALUES(?, ?, ?)`,
       [name, workload, workingTime],
-      // eslint-disable-next-line
-      // @ts-ignore
+
       function (err) {
         if (err) {
           reject(err)
         } else {
           resolve({
-            // eslint-disable-next-line
-            // @ts-ignore
             id: this.lastID,
             name,
             workload,
