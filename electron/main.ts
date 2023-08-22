@@ -52,7 +52,7 @@ function createWindow() {
 
   win = new BrowserWindow({
     icon: path.join(publicPath, 'electron-vite.ico'),
-    //fullscreen: true, // Definindo para abrir em fullscreen
+    fullscreen: true, // Definindo para abrir em fullscreen
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

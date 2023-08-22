@@ -18,21 +18,6 @@ import { useGetUser } from '@/context/pointContext'
 import { optionsMounth } from '@/data/options'
 
 const tableEmployeeSchema = z.object({
-  mounth: z.enum([
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-  ]),
-  year: z.string().nonempty('Por favor, preencha esse campo com algum valor.'),
   newEmployee: z
     .string()
     .nonempty('Por favor, preencha esse campo com algum valor.'),
@@ -74,6 +59,12 @@ export default function Employees() {
       },
     ],
   })
+
+  const [handleYear, setHandleYear] = useState(String(new Date().getFullYear()))
+  const [handleMounth, setHandleMounth] = useState(
+    String(new Date().getMonth() + 1),
+  )
+
   const {
     register,
     handleSubmit,
@@ -91,8 +82,6 @@ export default function Employees() {
       '0',
       data.workingTime,
     )
-
-    console.log({ userCreated })
 
     if (userCreated) {
       setFocus('newEmployee')
@@ -115,7 +104,11 @@ export default function Employees() {
     working_time?: string,
   ) => {
     const resulterUser: EmployeeResgister[] = registerUser.filter(
-      register => register.user_id === id,
+      register =>
+        register.user_id === id &&
+        register.month === handleMounth &&
+        register.year &&
+        handleYear,
     )
 
     setUserInModal({
@@ -148,7 +141,6 @@ export default function Employees() {
   useEffect(() => {
     const getUsers = async () => {
       const users: EmployeesProps[] = await ipcRenderer.invoke('getUsers')
-      console.log({ users })
       if (users) {
         setEmployees(users)
       }
@@ -181,22 +173,12 @@ export default function Employees() {
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="flex items-center justify-center gap-10">
           <Input
-            {...register('year')}
-            className={cn(
-              'text-center',
-              errors.year &&
-                'border-red-600 hover:border-red-600 focus-visible:border-red-600',
-            )}
-            {...register('year')}
+            className={cn('text-center')}
+            value={handleYear}
+            onChange={e => setHandleYear(e.target.value)}
             placeholder="Selecione o ano ex: 2023"
           />
-          <Select.Root
-            {...register('mounth')}
-            className={cn(
-              errors.mounth &&
-                'bg-red-600 hover:bg-red-600 focus-visible:bg-red-600',
-            )}
-          >
+          <Select.Root onChange={e => setHandleMounth(e.target.value)}>
             {optionsMounth.map(option => (
               <Select.Option key={option.label} value={option.value}>
                 {option.label}

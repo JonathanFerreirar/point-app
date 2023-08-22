@@ -136,9 +136,6 @@ const Ponto = () => {
           })
         }
       }
-    } else {
-      toast.error('Digite um número valido')
-      return
     }
   }
 
