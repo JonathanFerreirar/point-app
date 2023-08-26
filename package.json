@@ -12,8 +12,8 @@
     "preview": "vite preview"
   },
   "author": "Jonathan Rodrigo",
-    "license": "ISC",
-   "build": {
+  "license": "ISC",
+  "build": {
     "productName": "ElectronReact",
     "appId": "org.erb.ElectronReact",
     "asar": true,
@@ -40,6 +40,7 @@
     "@hookform/resolvers": "^3.1.1",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-slot": "^1.0.2",
+    "@react-pdf/renderer": "^3.1.12",
     "@types/react-router-dom": "^5.3.3",
     "clsx": "^2.0.0",
     "exceljs": "^4.3.0",

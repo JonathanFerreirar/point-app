@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff } from 'lucide-react'
 import { useGetUser } from '@/context/pointContext'
+import { toast } from 'react-hot-toast'
 
 type adminLoginFields = z.infer<typeof adminSquema>
 
@@ -18,8 +19,16 @@ interface dataForm {
 }
 
 const adminSquema = z.object({
-  userName: z.string().nonempty('Preencha ambos os campos.').trim(),
-  password: z.string().nonempty('Preencha ambos os campos.').trim(),
+  userName: z
+    .string()
+    .nonempty('Preencha ambos os campos.')
+    .trim()
+    .toUpperCase(),
+  password: z
+    .string()
+    .nonempty('Preencha ambos os campos.')
+    .trim()
+    .toUpperCase(),
 })
 
 function Admin() {
@@ -30,7 +39,7 @@ function Admin() {
   const {
     register,
     handleSubmit,
-    setError,
+    watch,
     formState: { errors },
   } = useForm<adminLoginFields>({
     resolver: zodResolver(adminSquema),
@@ -45,7 +54,7 @@ function Admin() {
       return (
         user.name === data.userName &&
         user.password === data.password &&
-        user.password.includes('contec@')
+        user.password.includes('CONTEC@')
       )
     })
 
@@ -54,12 +63,13 @@ function Admin() {
       handleSetAdmin(true)
       return
     }
-    if (data.userName === 'geral' && data.password === 'geral') {
+    if (data.userName === 'ADMIN' && data.password === 'ADMIN') {
       navigate('/employees')
       handleSetAdmin(false)
       return
+    } else {
+      toast.error('Senha ou usuário incorreto. ❌')
     }
-    setError('root', { message: 'Senha ou usuario errado.' })
   }
 
   useEffect(() => {
@@ -87,6 +97,7 @@ function Admin() {
                 placeholder="Username..."
                 className="rounded-default mb-2 w-full"
                 {...register('userName')}
+                value={watch('userName')?.toUpperCase() || ''}
               />
               {!!errors.userName && (
                 <p className="absolute  top-10 font-semibold text-red-950">
@@ -101,6 +112,7 @@ function Admin() {
                   placeholder="Senha..."
                   className="rounded-default mb-2  w-full"
                   {...register('password')}
+                  value={watch('password')?.toUpperCase() || ''}
                 />
                 {handleShowPassword ? (
                   <Eye

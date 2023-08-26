@@ -20,6 +20,7 @@ const {
   getAdminFromSQLite,
   getUserFromSQLite,
   getRegistersFromSQLite,
+  getDaysRegistersFromSQLite,
   postDataToSQlite,
   updatingTimeUser,
   deleteItemFromId,
@@ -202,3 +203,20 @@ ipcMain.handle(
     }
   },
 )
+
+interface IDaysDate {
+  day: string
+  month: string
+  year: string
+}
+
+ipcMain.handle('getGegisterDay', async (event, daysDate: IDaysDate) => {
+  event.sender
+  try {
+    return await getDaysRegistersFromSQLite({ ...daysDate })
+  } catch (error) {
+    // eslint-disable-next-line
+    // @ts-ignore
+    throw new Error(error.message)
+  }
+})

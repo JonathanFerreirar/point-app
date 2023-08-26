@@ -81,7 +81,11 @@ const Ponto = () => {
             handleHourToMinut(user.lunch_exit) - handleHourToMinut(timeCurrent)
 
           if (result > -30) {
-            toast.error('Faça no MINIMO 30 minutos de almoço')
+            toast.error(
+              `O tempo mínimo de almoço é 30 minutos. Volte em ${String(
+                result + 30,
+              ).replace('-', '')} minutos.`,
+            )
             return
           }
           try {
@@ -148,7 +152,7 @@ const Ponto = () => {
           </p>
           <p className="text-center font-semibold text-green-600">{success}</p>
           <h1 className="mb-6 text-center text-[3rem] font-extrabold text-white">
-            {userPoint?.name}
+            {userPoint?.name.toUpperCase()}
           </h1>
           <Clock
             locales="pt-BR"
@@ -174,7 +178,7 @@ const Ponto = () => {
             </Button>
           </form>
         </div>
-        <div className="items-right absolute bottom-36 right-1 flex w-[200px] flex-col justify-center text-justify font-semibold text-white lt:bottom-60 lt:right-14 lt:w-[300px] lt:text-[22px]">
+        <div className="items-right absolute bottom-36 right-0 flex w-[190px] flex-col justify-center border border-white p-3 text-justify text-[14px] font-semibold text-white lt:bottom-[12rem] lt:right-14 lt:w-[320px] lt:text-[26px]">
           <span>1 - ENTRADA</span>
           <span>2 - SAIDA ALMOÇO</span>
           <span>3 - ENTRADA ALMOÇO</span>

@@ -16,11 +16,14 @@ import { Employee, EmployeeResgister } from '@/components/Modal/modal'
 import { toast } from 'react-hot-toast'
 import { useGetUser } from '@/context/pointContext'
 import { optionsMounth } from '@/data/options'
+import ModalDefault from '@/components/Modal/modalDefault'
+import * as f from '@/functions/functionsHours'
 
 const tableEmployeeSchema = z.object({
   newEmployee: z
     .string()
-    .nonempty('Por favor, preencha esse campo com algum valor.'),
+    .nonempty('Por favor, preencha esse campo com algum valor.')
+    .toUpperCase(),
   workingTime: z
     .string()
     .nonempty('Coloque a carga horária')
@@ -34,6 +37,21 @@ interface EmployeesProps {
   name: string
   workload: string
   working_time?: string
+}
+
+interface IUserDays {
+  id: number
+  user_id: number
+  day: string
+  month: string
+  year: string
+  entry: string
+  lunch_entry: string
+  lunch_exit: string
+  extra_entry: string
+  extra_exit: string
+  exit: string
+  created_at: string
 }
 
 export default function Employees() {
@@ -59,8 +77,25 @@ export default function Employees() {
       },
     ],
   })
+  const [DaysInModal, setDaysInModal] = useState<IUserDays[]>([
+    {
+      id: 0,
+      user_id: 0,
+      day: 'Janeiro',
+      month: 'Março',
+      year: '2023',
+      entry: '07:30',
+      lunch_entry: '12:30',
+      lunch_exit: '13:30',
+      extra_entry: '00:00',
+      extra_exit: '00:00',
+      exit: '18:00',
+      created_at: '24/08/2023',
+    },
+  ])
 
   const [handleYear, setHandleYear] = useState(String(new Date().getFullYear()))
+  const [handleDay, setHandleDay] = useState(String(new Date().getDate()))
   const [handleMounth, setHandleMounth] = useState(
     String(new Date().getMonth() + 1),
   )
@@ -70,6 +105,7 @@ export default function Employees() {
     handleSubmit,
     reset,
     setFocus,
+    watch,
     formState: { errors },
   } = useForm<TableEmployeeFields>({
     resolver: zodResolver(tableEmployeeSchema),
@@ -117,6 +153,19 @@ export default function Employees() {
       registered: [...resulterUser],
     })
   }
+  const getUser = (id: string) => employees.find(value => value?.id == id)
+  const getDays = async () => {
+    const allUserDays: IUserDays[] = await ipcRenderer.invoke(
+      'getGegisterDay',
+      {
+        day: handleDay,
+        month: handleMounth,
+        year: handleYear,
+      },
+    )
+    const sortUsers = allUserDays.sort((a, b) => a.user_id - b.user_id)
+    setDaysInModal(sortUsers)
+  }
 
   const handleDownloadFileExcel = async (
     id: number,
@@ -131,7 +180,7 @@ export default function Employees() {
 
     const result: boolean = await ipcRenderer.invoke('create-file', user)
     if (result) {
-      toast.success('Arquivo criado com sucesso 🚀')
+      toast.success('Arquivo criado com sucesso ✅')
       return
     }
 
@@ -167,24 +216,93 @@ export default function Employees() {
 
     getRegister()
   }, [])
+  /*
+Modal que mostra os usuarios por dia
+  */
+  const dayUser = (data: IUserDays[]) => (
+    <Table.Root>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>DATA</Table.Head>
+          <Table.Head>NOME</Table.Head>
+          <Table.Head>ENTRADA</Table.Head>
+          <Table.Head>E. LUNCH</Table.Head>
+          <Table.Head>S. LUNCH</Table.Head>
+          <Table.Head>E. EXTRA</Table.Head>
+          <Table.Head>S. EXTRA</Table.Head>
+          <Table.Head>SAIDA</Table.Head>
+          <Table.Head>RESULTADO</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {data.map(userDay => {
+          const hour = f.resultTime({
+            entry: f.handleHourToMinut(userDay.entry),
+            exitToLunch: f.handleHourToMinut(userDay.lunch_exit),
+            entryFromLunch: f.handleHourToMinut(userDay.lunch_entry),
+            exitExtraTime: f.handleHourToMinut(userDay.extra_exit),
+            entryExtraTime: f.handleHourToMinut(userDay.extra_entry),
+            exit: f.handleHourToMinut(userDay.exit),
+          })
+
+          const result = f.handleMinutoToHour(hour)
+          const bankTime = f.bankTime({
+            timeWork: f.handleHourToMinut(result),
+            timeAtWork: f.handleHourToMinut(
+              getUser(String(userDay.user_id))?.working_time,
+            ),
+          })
+          const end = f.handleMinutoToBank(bankTime)
+
+          return (
+            <Table.Row key={userDay.id}>
+              <Table.Cell className="max-w-[150px] truncate p-4">
+                {userDay.created_at}
+              </Table.Cell>
+
+              <Table.Cell className="p-4">
+                {getUser(String(userDay.user_id))?.name}
+              </Table.Cell>
+              <Table.Cell className="p-4">{userDay.entry}</Table.Cell>
+              <Table.Cell className="p-4">{userDay.lunch_exit}</Table.Cell>
+              <Table.Cell className="p-4">{userDay.lunch_entry}</Table.Cell>
+              <Table.Cell className="p-4">{userDay.extra_exit}</Table.Cell>
+              <Table.Cell className="p-4">{userDay.extra_entry}</Table.Cell>
+
+              <Table.Cell className="p-4">{userDay.exit}</Table.Cell>
+              <Table.Cell className="max-w-[30px] truncate p-4 font-semibold">
+                {end}
+              </Table.Cell>
+            </Table.Row>
+          )
+        })}
+      </Table.Body>
+    </Table.Root>
+  )
 
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="flex items-center justify-center gap-10">
           <Input
+            className={cn('w-10 px-0 text-center')}
+            value={handleDay}
+            onChange={e => setHandleDay(e.target.value)}
+            placeholder="Dia"
+          />
+          <Select.Root onChange={e => setHandleMounth(e.target.value)}>
+            {optionsMounth.map(option => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select.Root>
+          <Input
             className={cn('text-center')}
             value={handleYear}
             onChange={e => setHandleYear(e.target.value)}
             placeholder="Selecione o ano ex: 2023"
           />
-          <Select.Root onChange={e => setHandleMounth(e.target.value)}>
-            {optionsMounth.map(option => (
-              <Select.Option key={option.label} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select.Root>
         </div>
         <div className="w-full rounded bg-white p-8">
           <form
@@ -202,6 +320,7 @@ export default function Employees() {
                         'border-red-600 hover:border-red-600 focus-visible:border-red-600',
                     )}
                     {...register('newEmployee')}
+                    value={watch('newEmployee')?.toUpperCase() || ''}
                   />
                   <Input
                     placeholder="Horas à trabalhar"
@@ -218,6 +337,14 @@ export default function Employees() {
                   >
                     <PlusCircle />
                   </button>
+                  <ModalDefault
+                    DateModal={dayUser(DaysInModal)}
+                    title="Vizualização diaria"
+                  >
+                    <Button onClick={getDays} className="border-none">
+                      <Eye size={20} />
+                    </Button>
+                  </ModalDefault>
                 </>
               )}
             </div>

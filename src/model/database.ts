@@ -122,6 +122,46 @@ async function getRegistersFromSQLite() {
   })
 }
 
+async function getDaysRegistersFromSQLite({ day, month, year }) {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbFilePath, sqlite3.OPEN_READWRITE, err => {
+      if (err) {
+        console.error('Here', err.message)
+        reject(err)
+      }
+    })
+
+    const data = []
+
+    db.serialize(() => {
+      db.each(
+        `SELECT *
+        FROM registers WHERE day = ? AND month = ? AND year = ?`,
+        [day, month, year],
+
+        (err, row) => {
+          if (err) {
+            console.error(err.message)
+            reject(err)
+          } else {
+            data.push(row)
+          }
+        },
+        () => {
+          db.close(err => {
+            if (err) {
+              console.error(err.message)
+              reject(err)
+            } else {
+              resolve(data)
+            }
+          })
+        },
+      )
+    })
+  })
+}
+
 async function postDataToSQlite(data, teste, saida) {
   const db = new sqlite3.Database(dbFilePath)
 
@@ -272,6 +312,7 @@ module.exports = {
   getAdminFromSQLite,
   getUserFromSQLite,
   getRegistersFromSQLite,
+  getDaysRegistersFromSQLite,
   postDataToSQlite,
   deleteItemFromId,
   updatingTimeUser,
