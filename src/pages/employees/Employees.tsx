@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusCircle, Trash2, Eye, ArrowDownCircle, Pencil } from 'lucide-react'
+import {
+  PlusCircle,
+  Trash2,
+  Eye,
+  ArrowDownCircle,
+  Pencil,
+  EyeOff,
+  ShieldAlert,
+} from 'lucide-react'
 import * as Table from '@/components/Table/table'
 import * as Select from '@/components/Select/select'
 import { cn } from '@/lib/utils'
@@ -39,6 +47,11 @@ interface EmployeesProps {
   working_time?: string
 }
 
+interface iAdminUser {
+  id: number
+  name: string
+  password: string
+}
 interface IUserDays {
   id: number
   user_id: number
@@ -57,6 +70,8 @@ interface IUserDays {
 export default function Employees() {
   const [employees, setEmployees] = useState<EmployeesProps[]>([])
   const [registerUser, setRegisterUser] = useState<EmployeeResgister[]>([])
+  const [adminPassword, setAdminPassword] = useState('')
+  const { handleSetAdmin } = useGetUser()
   const { admin } = useGetUser()
   const [userInModal, setUserInModal] = useState<Employee>({
     name: 'Jonathan Rodrigo',
@@ -93,9 +108,9 @@ export default function Employees() {
       created_at: '24/08/2023',
     },
   ])
-
+  const [handleShowPassword, setHandleShowPassword] = useState(false)
   const [handleYear, setHandleYear] = useState(String(new Date().getFullYear()))
-  const [handleDay, setHandleDay] = useState(String(new Date().getDate()))
+  const [handleDay, setHandleDay] = useState(String(new Date().getDate() - 1))
   const [handleMounth, setHandleMounth] = useState(
     String(new Date().getMonth() + 1),
   )
@@ -126,12 +141,20 @@ export default function Employees() {
     }
   }
 
+  let times = 0
   const handleDeleteUser = async (idUser: number) => {
-    const { id } = await ipcRenderer.invoke('deleteData', idUser)
+    if (times < 1) {
+      times += 1
 
-    const changedUsers = employees.filter(employee => employee.id !== id)
+      toast.error('Clique mais duas vez para confirmar á exclusão')
+    } else if (times >= 1) {
+      const { id } = await ipcRenderer.invoke('deleteData', idUser)
 
-    setEmployees(changedUsers)
+      const changedUsers = employees.filter(employee => employee.id !== id)
+
+      setEmployees(changedUsers)
+      toast.success('Usúario deletado com sucesso')
+    }
   }
 
   const handleDataToModal = (
@@ -280,16 +303,84 @@ Modal que mostra os usuarios por dia
     </Table.Root>
   )
 
+  const formToAdmin = () => {
+    const getAdmin = async () => {
+      const result = await ipcRenderer.invoke('getAdmin')
+      return result
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      const result = await getAdmin().then(result => {
+        return result.find((user: iAdminUser) => {
+          return user.password === adminPassword
+        })
+      })
+
+      if (result) {
+        handleSetAdmin(true)
+      } else {
+        toast.error('Senha admin errada')
+      }
+      setAdminPassword('')
+    }
+    return (
+      <div className="mt-10 flex h-full w-full items-center justify-center">
+        <form
+          onSubmit={handleSubmit}
+          className="relative flex h-full flex-col items-center justify-center"
+        >
+          <Input
+            type={handleShowPassword ? 'text' : 'password'}
+            placeholder="Senha..."
+            className="rounded-default mb-2  w-full"
+            onChange={e => setAdminPassword(e.target.value)}
+            value={adminPassword?.toUpperCase() || ''}
+          />
+          {handleShowPassword ? (
+            <Eye
+              size={18}
+              className="absolute bottom-[23px] right-4 cursor-pointer text-gray-400"
+              onClick={() => setHandleShowPassword(false)}
+            />
+          ) : (
+            <EyeOff
+              size={18}
+              className="absolute bottom-[23px] right-4 my-auto cursor-pointer text-gray-400"
+              onClick={() => setHandleShowPassword(true)}
+            />
+          )}
+        </form>
+      </div>
+    )
+  }
+
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
       <div className="flex flex-col items-center justify-center gap-5">
         <div className="flex items-center justify-center gap-10">
-          <Input
-            className={cn('w-10 px-0 text-center')}
-            value={handleDay}
-            onChange={e => setHandleDay(e.target.value)}
-            placeholder="Dia"
-          />
+          {admin ? (
+            <Input
+              className={cn('w-10 px-0 text-center')}
+              value={handleDay}
+              onChange={e => setHandleDay(e.target.value)}
+              placeholder="Dia"
+            />
+          ) : (
+            <ModalDefault
+              DateModal={formToAdmin()}
+              title="ACESSAR PAINEL ADMIN"
+              small
+            >
+              <button
+                title="PAINEL ADMIN"
+                className="flex cursor-default items-center justify-center rounded-md px-2 outline-black transition-colors duration-200  focus-visible:bg-gray-200"
+              >
+                <ShieldAlert />
+              </button>
+            </ModalDefault>
+          )}
           <Select.Root onChange={e => setHandleMounth(e.target.value)}>
             {optionsMounth.map(option => (
               <Select.Option key={option.value} value={option.value}>
@@ -388,7 +479,7 @@ Modal que mostra os usuarios por dia
                       {admin && (
                         <Table.Cell>
                           <button
-                            onClick={() =>
+                            onDoubleClick={() =>
                               handleDeleteUser(Number(employee.id))
                             }
                             title="Excluir funcionário"

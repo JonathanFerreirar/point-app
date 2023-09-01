@@ -133,8 +133,10 @@ export const handleMinutoToBank = (hora: number) => {
   }
 
   let RestMinuts
-  if (hora % 60 < 10 && hora % 60 >= 0) {
+  //&& hora % 60 >= 0
+  if (hora % 60 < 10 && hora % 60 >= -9) {
     RestMinuts = '0' + (hora % 60)
+    console.log({ RestMinuts })
   } else {
     RestMinuts = hora % 60
   }

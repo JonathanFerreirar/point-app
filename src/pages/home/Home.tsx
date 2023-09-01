@@ -2,7 +2,7 @@ import { Button } from '@/components/Button/button'
 import { useForm } from 'react-hook-form'
 import { Clock, ClockProps } from '@/components/Clock/Clock'
 import { Input } from '@/components/Input/input'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ipcRenderer } from 'electron'
 import { useState, useEffect } from 'react'
 import { UserPoint, useGetUser } from '@/context/pointContext'
@@ -25,7 +25,7 @@ const getUsers = async () => {
 }
 
 const Home = () => {
-  const { handleSetUserPoint } = useGetUser()
+  const { handleSetUserPoint, handleSetAdmin } = useGetUser()
 
   const navigate = useNavigate()
   const [users, setUsers] = useState<UserPoint[]>([])
@@ -49,6 +49,9 @@ const Home = () => {
       handleSetUserPoint(user)
       navigate('/ponto')
       return
+    } else {
+      navigate('/employees')
+      handleSetAdmin(false)
     }
     setError('idEmployer', { message: 'Usuário não encontrado' })
   }
@@ -56,11 +59,11 @@ const Home = () => {
   useEffect(() => {
     const getUsersFromData = async () => {
       const result = await getUsers()
-
+      handleSetAdmin(false)
       setUsers(result)
     }
     getUsersFromData()
-  }, [])
+  }, [handleSetAdmin])
 
   return (
     <section className="relative grid h-full grid-cols-[minmax(280px,600px)] items-center justify-center">
@@ -98,12 +101,12 @@ const Home = () => {
           </Button>
         </form>
       </div>
-      <Button
+      {/* <Button
         asChild
         className="absolute right-2 top-4 border-none font-semibold"
       >
         <Link to="/admin">Admin</Link>
-      </Button>
+      </Button> */}
     </section>
   )
 }
