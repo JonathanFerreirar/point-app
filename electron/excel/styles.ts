@@ -20,13 +20,13 @@ interface FooterStyle {
 export const headerStyle: HeaderStyle = {
   font: {
     bold: true,
-    size: 9,
+    size: 6,
     name: 'Arial',
   },
   fill: {
     type: 'pattern',
     pattern: 'solid',
-    fgColor: { argb: '8CB5F9' },
+    fgColor: { argb: 'FFFFFF' },
   },
   border: {
     right: { style: 'thin' },
@@ -39,7 +39,7 @@ export const headerTitleStyle: HeaderTitleStyle = {
     color: { argb: 'FFFFFF' },
     bold: true,
     name: 'Arial',
-    size: 10,
+    size: 7,
   },
   fill: {
     type: 'pattern',
@@ -55,7 +55,7 @@ export const headerTitleStyle: HeaderTitleStyle = {
 export const footerStyle: FooterStyle = {
   font: {
     bold: true,
-    size: 10,
+    size: 7,
     name: 'Arial',
   },
   border: {

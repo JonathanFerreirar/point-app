@@ -166,14 +166,17 @@ export default function Employees() {
       register =>
         register.user_id === id &&
         register.month === handleMounth &&
-        register.year &&
-        handleYear,
+        register.year === handleYear,
+    )
+
+    const resultOrdered = resulterUser.sort(
+      (a, b) => Number(a.day) - Number(b.day),
     )
 
     setUserInModal({
       name: username,
       working_time: working_time,
-      registered: [...resulterUser],
+      registered: [...resultOrdered],
     })
   }
   const getUser = (id: string) => employees.find(value => value?.id == id)
@@ -196,10 +199,17 @@ export default function Employees() {
     working_time?: string,
   ) => {
     const resulterUser: EmployeeResgister[] = registerUser.filter(
-      register => register.user_id === id,
+      register =>
+        register.user_id === id &&
+        register.month === handleMounth &&
+        register.year === handleYear,
     )
 
-    const user = { id, name, working_time, registered: resulterUser }
+    const resultOrdered = resulterUser.sort(
+      (a, b) => Number(a.day) - Number(b.day),
+    )
+
+    const user = { id, name, working_time, registered: resultOrdered }
 
     const result: boolean = await ipcRenderer.invoke('create-file', user)
     if (result) {

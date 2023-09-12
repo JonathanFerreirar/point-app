@@ -156,7 +156,7 @@ export const handleMinutoToBank = (hora: number) => {
  * @returns string
  * @example
  *
- * Normally used in conjunction with the resultTime that is used conjuntions with handleMinutoToHour
+ * Normally used in conjunction with the resultTime that is used conjuntions with handleHoursToMinut
  *
  *   const sumOfTheTimeInMinuts = resultTime({
         entry,

@@ -15,7 +15,6 @@ interface Data extends Employee {
   id: number
 }
 
-
 export async function createExcelFile(filename: string, data: Data) {
   const bank = []
   // create a new workbook and sheet
@@ -42,14 +41,14 @@ export async function createExcelFile(filename: string, data: Data) {
     [
       'DATA',
       'ENTRADA',
-      'SAIDA ALMOÇO',
-      'ENTRADA ALMOÇO',
-      'SAIDA EXTRA',
-      'ENTRADA EXTRA',
+      'S. ALMOÇO',
+      'E. ALMOÇO',
+      'S. EXTRA',
+      'E. EXTRA',
       'SAIDA',
-      'QNT HORAS TRAB.',
-      'HORAS Á TRAB.',
-      'BANCO DE HORAS',
+      'H. TRAB.',
+      'H. Á TRAB.',
+      'B. DE HORAS',
     ],
   ]
 
@@ -64,7 +63,7 @@ export async function createExcelFile(filename: string, data: Data) {
   })
 
   worksheet.columns.forEach(colum => {
-    colum.width = 18
+    colum.width = 9
   })
 
   // TODO: Registers Logic..
