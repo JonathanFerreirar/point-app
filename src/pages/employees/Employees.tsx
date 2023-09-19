@@ -52,7 +52,7 @@ interface iAdminUser {
   name: string
   password: string
 }
-interface IUserDays {
+export interface IUserDays {
   id: number
   user_id: number
   day: string
@@ -189,8 +189,16 @@ export default function Employees() {
         year: handleYear,
       },
     )
-    const sortUsers = allUserDays.sort((a, b) => a.user_id - b.user_id)
-    setDaysInModal(sortUsers)
+
+    const userFinish = allUserDays.map(value => ({
+      ...value,
+      day: getUser(String(value.user_id))?.name,
+      year: getUser(String(value.user_id))?.working_time,
+    }))
+
+    const sortUsers = userFinish.sort((a, b) => a.user_id - b.user_id)
+
+    setDaysInModal(sortUsers as IUserDays[])
   }
 
   const handleDownloadFileExcel = async (
@@ -212,6 +220,17 @@ export default function Employees() {
     const user = { id, name, working_time, registered: resultOrdered }
 
     const result: boolean = await ipcRenderer.invoke('create-file', user)
+    if (result) {
+      toast.success('Arquivo criado com sucesso ✅')
+      return
+    }
+
+    toast.error('Ocorreu algum erro inesperado :(')
+  }
+
+  const handleDownloadFileExcelAllBeforeDay = async (data: IUserDays[]) => {
+    const result: boolean = await ipcRenderer.invoke('createFileAll', data)
+    console.log({ result })
     if (result) {
       toast.success('Arquivo criado com sucesso ✅')
       return
@@ -281,9 +300,7 @@ Modal que mostra os usuarios por dia
           const result = f.handleMinutoToHour(hour)
           const bankTime = f.bankTime({
             timeWork: f.handleHourToMinut(result),
-            timeAtWork: f.handleHourToMinut(
-              getUser(String(userDay.user_id))?.working_time,
-            ),
+            timeAtWork: f.handleHourToMinut(userDay.year),
           })
           const end = f.handleMinutoToBank(bankTime)
 
@@ -293,9 +310,7 @@ Modal que mostra os usuarios por dia
                 {userDay.created_at}
               </Table.Cell>
 
-              <Table.Cell className="p-4">
-                {getUser(String(userDay.user_id))?.name}
-              </Table.Cell>
+              <Table.Cell className="p-4">{userDay.day}</Table.Cell>
               <Table.Cell className="p-4">{userDay.entry}</Table.Cell>
               <Table.Cell className="p-4">{userDay.lunch_exit}</Table.Cell>
               <Table.Cell className="p-4">{userDay.lunch_entry}</Table.Cell>
@@ -310,6 +325,15 @@ Modal que mostra os usuarios por dia
           )
         })}
       </Table.Body>
+
+      <div className="flex w-full justify-start">
+        <button
+          onClick={() => handleDownloadFileExcelAllBeforeDay(data)}
+          className="focus:shadow-green7  my-5 inline-flex h-[35px] items-center rounded-[4px] border border-black px-[15px] font-medium leading-none hover:border-none focus:shadow-[0_0_0_2px] focus:outline-none"
+        >
+          Baixar
+        </button>
+      </div>
     </Table.Root>
   )
 

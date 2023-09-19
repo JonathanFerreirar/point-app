@@ -4,6 +4,8 @@ import { dialog } from 'electron'
 import electronModeDev from 'electron-is-dev'
 import path from 'path'
 import { createExcelFile } from './excel/createExcelFile'
+import { createExcelFileAllBeforeDay } from './excel/createExcelFileAllBeforeDay'
+import { IUserDays } from '@/pages/employees/Employees'
 
 const dbFilePath = path.join(__dirname, '../src/model/database.ts')
 // The built directory structure
@@ -114,6 +116,30 @@ ipcMain.handle('create-file', async (event, data: DataCreateFile) => {
 
     if (result.filePath) {
       createExcelFile(result.filePath, data)
+    }
+    return { message: 'Arquivo salvo com sucesso' }
+  } catch (err) {
+    console.log(err)
+    return false
+  }
+})
+
+ipcMain.handle('createFileAll', async (event, data: IUserDays[]) => {
+  try {
+    const winCurrent = BrowserWindow.fromId(event.frameId)
+
+    if (!winCurrent)
+      throw new Error('Não foi possível achar o processo da interface')
+
+    const result = await dialog.showSaveDialog(winCurrent, {
+      title: 'Selecione um arquivo',
+      filters: [
+        { name: 'Spreadsheets', extensions: ['xlsx', 'xls', 'xlsb', 'csv'] },
+      ],
+    })
+
+    if (result.filePath) {
+      createExcelFileAllBeforeDay(result.filePath, data)
     }
     return { message: 'Arquivo salvo com sucesso' }
   } catch (err) {
